@@ -209,19 +209,39 @@ export default function Home() {
 
   // 6. 웹 공유 로직 (모바일 브라우저에서 카톡 공유 등 지원)
   const handleShare = async () => {
-    if (!result) return;
-    const shareMessage = `[🚨 연문철의 연애 블랙박스]\n과실 비율: 남자 ${result.ratio_male}% vs 여자 ${result.ratio_female}%\n\n💡 요약:\n${result.summary}\n\n👉 지금 바로 웹에서 판결받기! (주소 넣을 예정)`;
-    
+  if (!result) return;
+
+  // 💡 사장님의 진짜 주소로 고쳐주세요!
+  const siteUrl = "https://couple-judge-web.vercel.app"; 
+
+  const shareMessage = `[🚨 연문철의 연애 블랙박스 판결 결과]
+
+과실 비율: 남자 ${result.ratio_male}% vs 여자 ${result.ratio_female}%
+
+💡 판결 요약:
+${result.summary}
+
+⚖️ 연문철의 최종 솔루션:
+${result.solution}
+
+👇 나도 판결받으러 가기 (무료)
+${siteUrl}`;
+
+  try {
     if (navigator.share) {
-      try {
-        await navigator.share({ title: '연문철 판결문', text: shareMessage });
-      } catch (err) { console.log('공유 취소됨'); }
+      await navigator.share({
+        title: '연문철의 연애 블랙박스',
+        text: shareMessage,
+        url: siteUrl,
+      });
     } else {
-      // PC 등 공유 API 미지원 시 클립보드 복사
-      navigator.clipboard.writeText(shareMessage);
-      alert('결과가 클립보드에 복사되었습니다. 카톡에 붙여넣기 해보세요!');
+      await navigator.clipboard.writeText(shareMessage);
+      alert('판결문과 사이트 주소가 복사되었습니다! 카톡에 붙여넣으세요.');
     }
-  };
+  } catch (error) {
+    console.log('공유 실패:', error);
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#121212] text-white font-sans selection:bg-[#FFD60A] selection:text-black">
