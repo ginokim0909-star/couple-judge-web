@@ -293,11 +293,13 @@ ${siteUrl}`;
           </label>
         </div>
 
-        <div className="mb-4 text-[11.5px] text-[#FF453A] font-medium leading-relaxed bg-[#3C1E1E]/30 p-2 rounded-lg border border-[#FF453A]/30">
-          <p>※ 제보 전 상대방의 실명, 전화번호, 프로필 사진 등은 반드시 가려주세요.</p>
-          <p>※ 타인 간의 대화를 몰래 녹음하여 분석하는 것은 법적 책임을 질 수 있습니다.</p>
+        {/* 💡 법적 방어막을 '꿀팁'으로 포장한 안내문 */}
+        <div className="mb-4 text-[11.5px] text-gray-400 font-medium leading-relaxed bg-[#1E1E1E]/80 p-3 rounded-lg border border-[#333]">
+          <p className="text-[#FFD60A] font-bold mb-1">💡 제보 꿀팁 & 주의사항</p>
+          <p>• 카카오톡의 <span className="text-white font-bold">'모자이크 캡처'</span> 기능을 사용하시면 1초 만에 이름을 가릴 수 있어요!</p>
+          <p>• 실명이나 불법 녹음이 포함된 결과를 무단 공유할 경우 법적 책임은 제보자에게 있습니다.</p>
         </div>
-        
+
         {/* 첨부된 파일 목록 */}
         <div className="flex flex-wrap gap-2 mb-4">
           {images.map((img, i) => (
