@@ -104,9 +104,15 @@ export default function Home() {
     }
 
     // 🚨 웹 버전 임시 가짜 광고 딜레이 (나중에 구글 애드센스 전면 광고로 교체할 부분)
+    // 💰 수익 극대화를 위한 가변 딜레이 적용 (광고 노출 시간 확보)
     setLoading(true);
-    setLoadingText('잠시 후 판결이 시작됩니다...');
-    await new Promise(resolve => setTimeout(resolve, 2000)); // 2초 대기
+    
+    let delayTime = 3000; // 기본 3초 (텍스트만 있을 때)
+    if (images.length > 0) delayTime += 3000; // 사진 있으면 +3초 (총 6초)
+    if (audios.length > 0) delayTime += 4000; // 음성 있으면 +4초 (총 7~10초)
+
+    setLoadingText('블랙박스 데이터를 서버로 안전하게 전송 중...');
+    await new Promise(resolve => setTimeout(resolve, delayTime)); // 설정된 시간만큼 대기
 
     setResult(null);
 
@@ -274,7 +280,7 @@ ${siteUrl}`;
         </div>
 
         {/* 파일 첨부 버튼 (웹 input) */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-2">
           <label className="flex-1 flex items-center justify-center bg-[#1E1E1E] border border-[#333] py-3 rounded-lg cursor-pointer hover:bg-[#2A2A2A] transition-colors">
             <ImageIcon className="text-[#FFD60A] w-5 h-5 mr-2" />
             <span className="text-gray-200 font-bold text-sm">카톡 캡처</span>
@@ -287,6 +293,11 @@ ${siteUrl}`;
           </label>
         </div>
 
+        <div className="mb-4 text-[11.5px] text-[#FF453A] font-medium leading-relaxed bg-[#3C1E1E]/30 p-2 rounded-lg border border-[#FF453A]/30">
+          <p>※ 제보 전 상대방의 실명, 전화번호, 프로필 사진 등은 반드시 가려주세요.</p>
+          <p>※ 타인 간의 대화를 몰래 녹음하여 분석하는 것은 법적 책임을 질 수 있습니다.</p>
+        </div>
+        
         {/* 첨부된 파일 목록 */}
         <div className="flex flex-wrap gap-2 mb-4">
           {images.map((img, i) => (
@@ -324,6 +335,7 @@ ${siteUrl}`;
           )}
         </button>
         <p className="text-xs text-gray-500 text-center mt-3 font-medium">※ 본 판결은 AI의 분석이므로 과몰입 금지! 재미로만 참고하세요.</p>
+        <p className="text-xs text-gray-500 text-center mt-1 font-medium">※ 입력된 사진과 음성은 판결 즉시 파기되며 서버에 절대 저장되지 않습니다.</p>
 
         {/* 완료 안내 */}
         {result && !loading && (
