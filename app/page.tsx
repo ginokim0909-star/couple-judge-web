@@ -201,17 +201,26 @@ export default function Home() {
 
   // 5. 이미지 저장 로직 (웹 전용)
   const handleSaveImage = async () => {
-    if (!resultRef.current) return;
-    try {
-      const canvas = await html2canvas(resultRef.current, { backgroundColor: '#1E1E1E' });
-      const link = document.createElement('a');
-      link.download = '연문철_판결문.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    } catch (err) {
-      alert('이미지 저장에 실패했습니다.');
-    }
-  };
+  if (!resultRef.current) return;
+  
+  try {
+    const canvas = await html2canvas(resultRef.current, {
+      useCORS: true, // 💡 외부 이미지 허용 옵션
+      allowTaint: true,
+      backgroundColor: '#000000', // 배경색을 검정으로 강제
+      scale: 2 // 화질을 2배로 선명하게
+    });
+    
+    const image = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = image;
+    link.download = `연문철_판결문_${new Date().getTime()}.png`;
+    link.click();
+  } catch (err) {
+    console.error("이미지 저장 실패:", err);
+    alert("이미지 저장 중 오류가 발생했습니다. 화면을 캡처해서 사용해 주세요!");
+  }
+};
 
   // 6. 웹 공유 로직 (모바일 브라우저에서 카톡 공유 등 지원)
   const handleShare = async () => {
