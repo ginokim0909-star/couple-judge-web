@@ -199,52 +199,54 @@ export default function Home() {
     }
   };
 
-  // 5. 이미지 저장 로직 (웹 전용)
+  // 5. 이미지 저장 로직 (웹 전용 - 모바일/인앱 완벽 대응)
   const handleSaveImage = async () => {
-  if (!resultRef.current) return;
-  
-  try {
-    const canvas = await html2canvas(resultRef.current, {
-      useCORS: true,
-      allowTaint: true,
-      scale: 2, // 화질 개선
-      backgroundColor: '#000000',
-    });
-    
-    const image = canvas.toDataURL("image/png");
+    if (!resultRef.current) return;
+    try {
+      // 💡 1. 화질 개선 및 외부 이미지 허용 옵션 추가
+      const canvas = await html2canvas(resultRef.current, { 
+        backgroundColor: '#1E1E1E',
+        useCORS: true,
+        allowTaint: true,
+        scale: 2 
+      });
+      
+      const image = canvas.toDataURL('image/png');
 
-    // 💡 해결책: PC는 다운로드, 모바일/인앱은 '새 창 열기'로 대응
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    const isInsideApp = /KAKAO|Instagram|FBAN|FBAV/i.test(navigator.userAgent);
+      // 💡 2. 접속한 기기 및 브라우저 환경 체크
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const isInsideApp = /KAKAO|Instagram|FBAN|FBAV/i.test(navigator.userAgent);
 
-    if (isMobile || isInsideApp) {
-      // 모바일이나 인앱 브라우저에서는 다운로드가 막히는 경우가 많습니다.
-      // 이미지를 새 창(또는 모달)으로 띄워주고 유저가 직접 '꾹 눌러서 저장'하게 유도하는 것이 가장 확실합니다.
-      const newWindow = window.open();
-      if (newWindow) {
-        newWindow.document.write(`
-          <html>
-            <body style="margin:0; background:black; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-              <p style="color:white; font-size:14px; margin:20px;">판결문을 꾹 눌러서 이미지로 저장하세요!</p>
-              <img src="${image}" style="width:100%; max-width:500px;" />
-            </body>
-          </html>
-        `);
+      if (isMobile || isInsideApp) {
+        // 모바일 & 인앱 브라우저 (카톡, 인스타 등): 새 창을 띄워서 꾹 눌러 저장하게 유도
+        const newWindow = window.open();
+        if (newWindow) {
+          newWindow.document.write(`
+            <html>
+              <head><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+              <body style="margin:0; background:#121212; display:flex; flex-direction:column; align-items:center; padding: 20px;">
+                <p style="color:#FFD60A; font-weight:bold; font-size:16px; margin-bottom:20px; text-align:center;">
+                  👇 아래 이미지를 꾹~ 눌러서 '내 폰에 저장'하세요!
+                </p>
+                <img src="${image}" style="width:100%; max-width:500px; border-radius: 12px; border: 1px solid #333;" />
+              </body>
+            </html>
+          `);
+        } else {
+          alert('브라우저 팝업이 차단되었습니다. 결과 화면을 직접 캡처해 주세요!');
+        }
       } else {
-        alert("브라우저 팝업이 차단되었습니다. 화면을 직접 캡처해 주세요!");
+        // PC 환경: 정상적으로 다운로드 진행
+        const link = document.createElement('a');
+        link.download = `연문철_판결문_${new Date().getTime()}.png`;
+        link.href = image;
+        link.click();
       }
-    } else {
-      // PC 브라우저용 다운로드
-      const link = document.createElement("a");
-      link.href = image;
-      link.download = `연문철_판결문_${new Date().getTime()}.png`;
-      link.click();
+    } catch (err) {
+      console.error(err);
+      alert('이미지 저장에 실패했습니다. 화면을 직접 캡처해 주세요!');
     }
-  } catch (err) {
-    console.error("이미지 저장 실패:", err);
-    alert("이미지 생성에 실패했습니다. 화면을 직접 캡처해 주세요!");
-  }
-};
+  };
 
   // 6. 웹 공유 로직 (모바일 브라우저에서 카톡 공유 등 지원)
   const handleShare = async () => {
@@ -444,6 +446,7 @@ ${siteUrl}`;
               <button onClick={handleSaveImage} className="w-full flex items-center justify-center bg-[#333] border border-[#FFD60A] text-[#FFD60A] py-3 rounded-xl font-bold hover:bg-[#444] transition-colors">
                 <Download className="w-4 h-4 mr-2" /> 이미지로 저장하기
               </button>
+              <p className="text-[10px] text-gray-500 text-center mb-1">※ 저장이 안 될 경우 화면을 직접 캡처해 주세요!</p>
               <button onClick={handleShare} className="w-full flex items-center justify-center bg-[#FEE500] text-[#3C1E1E] py-3 rounded-xl font-black hover:bg-yellow-400 transition-colors">
                 <MessageCircle className="w-4 h-4 mr-2" /> 공유하기
               </button>
