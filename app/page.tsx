@@ -205,20 +205,44 @@ export default function Home() {
   
   try {
     const canvas = await html2canvas(resultRef.current, {
-      useCORS: true, // 💡 외부 이미지 허용 옵션
+      useCORS: true,
       allowTaint: true,
-      backgroundColor: '#000000', // 배경색을 검정으로 강제
-      scale: 2 // 화질을 2배로 선명하게
+      scale: 2, // 화질 개선
+      backgroundColor: '#000000',
     });
     
     const image = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.href = image;
-    link.download = `연문철_판결문_${new Date().getTime()}.png`;
-    link.click();
+
+    // 💡 해결책: PC는 다운로드, 모바일/인앱은 '새 창 열기'로 대응
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const isInsideApp = /KAKAO|Instagram|FBAN|FBAV/i.test(navigator.userAgent);
+
+    if (isMobile || isInsideApp) {
+      // 모바일이나 인앱 브라우저에서는 다운로드가 막히는 경우가 많습니다.
+      // 이미지를 새 창(또는 모달)으로 띄워주고 유저가 직접 '꾹 눌러서 저장'하게 유도하는 것이 가장 확실합니다.
+      const newWindow = window.open();
+      if (newWindow) {
+        newWindow.document.write(`
+          <html>
+            <body style="margin:0; background:black; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+              <p style="color:white; font-size:14px; margin:20px;">판결문을 꾹 눌러서 이미지로 저장하세요!</p>
+              <img src="${image}" style="width:100%; max-width:500px;" />
+            </body>
+          </html>
+        `);
+      } else {
+        alert("브라우저 팝업이 차단되었습니다. 화면을 직접 캡처해 주세요!");
+      }
+    } else {
+      // PC 브라우저용 다운로드
+      const link = document.createElement("a");
+      link.href = image;
+      link.download = `연문철_판결문_${new Date().getTime()}.png`;
+      link.click();
+    }
   } catch (err) {
     console.error("이미지 저장 실패:", err);
-    alert("이미지 저장 중 오류가 발생했습니다. 화면을 캡처해서 사용해 주세요!");
+    alert("이미지 생성에 실패했습니다. 화면을 직접 캡처해 주세요!");
   }
 };
 
